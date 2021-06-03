@@ -675,11 +675,11 @@ function! s:execute(dict, command, use_height, temps) abort
       call jobstart(cmd, fzf)
       return []
     endif
-  elseif has('win32unix') && $TERM !=# 'cygwin'
-    let shellscript = s:fzf_tempname()
-    call writefile([command], shellscript)
-    let command = 'cmd.exe /C '.fzf#shellescape('set "TERM=" & start /WAIT sh -c '.shellscript)
-    let a:temps.shellscript = shellscript
+  " elseif has('win32unix') && $TERM !=# 'cygwin'
+    " let shellscript = s:fzf_tempname()
+    " call writefile([command], shellscript)
+    " let command = 'cmd.exe /C '.fzf#shellescape('set "TERM=" & start /WAIT sh -c '.shellscript)
+    " let a:temps.shellscript = shellscript
   endif
   if a:use_height
     call system(printf('tput cup %d > /dev/tty; tput cnorm > /dev/tty; %s < /dev/tty 2> /dev/tty', &lines, command))
@@ -689,6 +689,10 @@ function! s:execute(dict, command, use_height, temps) abort
   let exit_status = v:shell_error
   redraw!
   let lines = s:collect(a:temps)
+
+  " foo\bar\coo -> foo/bar/coo
+  let lines[1] = substitute(lines[1], "\\", "/", "g")
+
   return s:exit_handler(exit_status, command) ? lines : []
 endfunction
 
